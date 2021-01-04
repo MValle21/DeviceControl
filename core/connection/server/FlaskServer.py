@@ -1,4 +1,5 @@
 from flask import Flask, request
+from flask_sqlalchemy import SQLAlchemy
 
 from core.data.manager import DataManager
 from core.data.model import Response
@@ -14,6 +15,11 @@ class Server:
         self.app_manager = AppManager(TaskManager(), DeviceManager(), DataManager())
         self.server = Flask(__name__)
         self.register_endpoints()
+
+        self.server.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://DeviceControl:&Bioarineo1@127.0.0.1/device_control'
+        self.server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+        self.db = SQLAlchemy(self.server)
 
     def start(self):
         self.server.run(host='0.0.0.0')

@@ -1,8 +1,8 @@
 from random import random
-from core.device.abstract import Connector
+from core.device.abstract import Device
 
 
-class PBR(Connector):
+class PBR(Device):
     def __init__(self, config):
         super(PBR, self).__init__(config)
         self._last_value = 0.45

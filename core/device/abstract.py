@@ -1,13 +1,19 @@
 from abc import abstractmethod
 from threading import Thread
 
+from core.connection.server.FlaskServer import Server
 from core.flow.workflow import Job, WorkflowProvider
 from core.log import Log
 from core.data.command import Command
 from core.utils.AbstractClass import abstractattribute, Interface
 
 
-class Connector(metaclass=Interface):
+class Device(metaclass=Interface, Server.db.Model):
+    __tablename__ = 'devices'
+    id = Server.db.Column(Server.db.String(100), primary_key=True)
+    device_class = Server.db.Column(Server.db.String(100))
+    device_type = Server.db.Column(Server.db.String(100))
+    address = Server.db.Column(Server.db.String(100), nullable=True)
 
     def __init__(self, config: dict):
         self.setup = {}
@@ -32,7 +38,7 @@ class Connector(metaclass=Interface):
         return "{} @ {}".format(self.device_id, self.address)
 
     def __repr__(self):
-        return "Connector({}, {})".format(self.device_id, self.address)
+        return "Device({}, {})".format(self.device_id, self.address)
 
     @abstractmethod
     def disconnect(self) -> None:

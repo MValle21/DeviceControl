@@ -1,12 +1,12 @@
 from threading import Thread, Event
 from time import sleep
 
-from core.device.abstract import Connector
+from core.device.abstract import Device
 from core.log import Logger
 from custom.devices.Phenometrics.libs.communication import Connection
 
 
-class PBR(Connector):
+class PBR(Device):
 
     class PumpManager:
 

@@ -1,6 +1,6 @@
 from typing import Dict
 
-from core.device.abstract import Connector
+from core.device.abstract import Device
 from core.utils.errors import IdError
 from core.utils.singleton import singleton
 
@@ -9,13 +9,13 @@ from core.utils.singleton import singleton
 class DeviceManager:
 
     def __init__(self):
-        self._devices: Dict[str, Connector] = {}
+        self._devices: Dict[str, Device] = {}
 
-    def new_device(self, config: dict) -> Connector:
+    def new_device(self, config: dict) -> Device:
         device_class = config.get("device_class")
         device_type = config.get("device_type")
         if self._devices.get(config.get("device_id")) is not None:
-            raise IdError("Connector with given ID already exists")
+            raise IdError("Device with given ID already exists")
         device = self.load_class(device_class, device_type)(config)
         self._devices[device.device_id] = device
         return device
@@ -24,10 +24,10 @@ class DeviceManager:
         device = self._devices.pop(device_id)
         device.end()
 
-    def get_device(self, device_id: str) -> Connector:
+    def get_device(self, device_id: str) -> Device:
         device = self._devices.get(device_id)
         if device is None:
-            raise IdError("Connector with given ID: %s was not found" % device_id)
+            raise IdError("Device with given ID: %s was not found" % device_id)
         return device
 
     def end(self):
@@ -43,6 +43,6 @@ class DeviceManager:
         return result
 
     @staticmethod
-    def load_class(device_class: str, device_type: str) -> Connector.__class__:
+    def load_class(device_class: str, device_type: str) -> Device.__class__:
         from custom.devices import classes
         return classes.get(device_class, {}).get(device_type)

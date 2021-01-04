@@ -1,8 +1,8 @@
-from core.device.abstract import Connector
+from core.device.abstract import Device
 from custom.devices.SEDtronic.libs.Connection import Connection
 
 
-class U1W_TVSL(Connector):
+class U1W_TVSL(Device):
     def __init__(self, config: dict):
         super(U1W_TVSL, self).__init__(config)
         self.connection = Connection(self.address, "8080", self.device_id)

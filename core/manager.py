@@ -44,7 +44,7 @@ class AppManager:
 
             return Response(True, None)
         except AttributeError:
-            exc = IdError('Connector with given ID: %s was not found' % device_id)
+            exc = IdError('Device with given ID: %s was not found' % device_id)
             Log.error(exc)
             return Response(False, None, exc)
 

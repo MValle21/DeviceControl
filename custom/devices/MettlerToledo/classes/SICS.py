@@ -1,8 +1,8 @@
-from core.device.abstract import Connector
+from core.device.abstract import Device
 from custom.devices.MettlerToledo.libs.Connection import Connection
 
 
-class SICS(Connector):
+class SICS(Device):
     def __init__(self, config: dict):
         super(SICS, self).__init__(config)
         self.connection = Connection(self.address, self.device_id)

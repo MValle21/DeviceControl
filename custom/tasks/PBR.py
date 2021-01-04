@@ -6,7 +6,7 @@ from typing import Dict
 import numpy as np
 
 from core.data.command import Command
-from core.device.abstract import Connector
+from core.device.abstract import Device
 from core.device.manager import DeviceManager
 from core.task.abstract import BaseTask
 from core.task.manager import TaskManager
@@ -25,7 +25,7 @@ class PBRMeasureAll(BaseTask):
         self.latest_values = deque(maxlen=2)
         self.outliers = 0
 
-        self.device: Connector = DeviceManager().get_device(self.device_id)
+        self.device: Device = DeviceManager().get_device(self.device_id)
         self.average_od = self.measure_initial_od_average()
         self.od = Observable()
 
