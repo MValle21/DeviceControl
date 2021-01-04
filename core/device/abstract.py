@@ -13,7 +13,8 @@ class Device(metaclass=Interface, Server.db.Model):
     id = Server.db.Column(Server.db.String(100), primary_key=True)
     device_class = Server.db.Column(Server.db.String(100))
     device_type = Server.db.Column(Server.db.String(100))
-    address = Server.db.Column(Server.db.String(100), nullable=True)
+    address = Server.db.Column(Server.db.String(100), nullable=True, default=None)
+    values = Server.db.relationship('Value', backref='device')
 
     def __init__(self, config: dict):
         self.setup = {}
