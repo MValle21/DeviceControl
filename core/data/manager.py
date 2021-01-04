@@ -1,10 +1,8 @@
-from typing import Optional
-
-from core.data.model import Experiment, Variable, Device
+from core.data.model import Experiment, Variable, Device, Value, Event
 from core.utils import time
 from core.data.dao import Dao
-from core.utils.db import enquote
 from core.utils.singleton import singleton
+from core.utils.time import from_string
 
 
 @singleton
@@ -53,53 +51,33 @@ class DataManager:
         experiment.end = time.now()
         Dao.insert(experiment)
 
-    # TODO
-    def _get_data(self, conditions, device_id, table):
-        response = Dao.select(table, conditions)
+    def post_process(self, query_results, data_type, device_id):
         result = {}
 
-        columns = list.copy(Dao.tables[table])
-
-        for row in response:
-            log_id = row[0]
-            row = dict(zip(columns, (row[1:])))
-            for key, item in row.items():
-                # noinspection PyBroadException
-                try:
-                    item = eval(item)
-                    row[key] = item
-                except Exception:
-                    continue
+        for obj in query_results:
+            row = obj.__dict__  # PROBABLY WONT WORK !!!
+            log_id = row.pop('id')
             result[log_id] = row
 
-        if device_id is not None and response:
-            self.last_seen_id[table][device_id] = max(list(map(int, result.keys())))
+        if device_id is not None:
+            self.last_seen_id[data_type][device_id] = max(list(map(int, result.keys())))
 
         return result
 
-    def get_data(self,
-                 log_id: Optional[int],
-                 last_time: Optional[str],
-                 device_id: Optional[str],
-                 data_type: str = 'values'):
-
-        where_conditions = ["dev_id={}".format(enquote(device_id))]
+    def get_data(self, log_id: int, last_time: str, device_id: str, data_type: str = 'values'):
+        cls = Value if data_type == 'values' else Event
 
         if last_time is not None:
-            where_conditions.append("TIMESTAMP(time)>TIMESTAMP({})".format(last_time))
+            last_time = from_string(last_time)
+            return self.post_process(cls.query.filter_by(dev_id=device_id).filter(cls.time > last_time).all(),
+                                     data_type, device_id)
         else:
             if log_id is None:
                 log_id = self.last_seen_id[data_type].get(device_id, 0)
-            where_conditions.append("id>{}".format(log_id))
-
-        return self._get_data(where_conditions, device_id, data_type)
+            return self.post_process(cls.query.filter_by(dev_id=device_id).filter(cls.id > log_id).all(),
+                                     data_type, device_id)
 
     def get_latest_data(self, device_id, data_type: str = 'values'):
-        where_conditions = []
-        if device_id is None:
-            where_conditions.append("log_id=(SELECT MAX(id) FROM {})".format(data_type))
-        else:
-            where_conditions.append(
-                "log_id=(SELECT MAX(id) FROM {} WHERE dev_id={})".format(data_type, enquote(device_id)),
-            )
-        return self._get_data(where_conditions, device_id, data_type)
+        cls = Value if data_type == 'values' else Event
+
+        return cls.query.filter_by(dev_id=device_id).order_by(cls.id.desc()).first()

@@ -17,3 +17,7 @@ def process_time(time):
             return "'" + processed.strftime("%Y-%m-%d %H:%M:%S.%f") + "'"
         except Exception:
             raise SyntaxError("Invalid time format has been provided: {}".format(time))
+
+
+def from_string(time):
+    return datetime.strptime(time, "%Y%m%d%H%M%S%f")
