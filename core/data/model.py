@@ -23,7 +23,16 @@ class Response:
         )
 
 
-class Value:
+# DB tables
+class Device(Server.db.Model):
+    __tablename__ = 'devices'
+    id = Server.db.Column(Server.db.String(100), primary_key=True)
+    device_class = Server.db.Column(Server.db.String(100))
+    device_type = Server.db.Column(Server.db.String(100))
+    address = Server.db.Column(Server.db.String(100), nullable=True, default=None)
+
+
+class Value(Server.db.Model):
     __tablename__ = 'values'
     id = Server.db.Column(Server.db.Integer, primary_key=True)
     time = Server.db.Column(Server.db.DateTime)
@@ -34,7 +43,7 @@ class Value:
     note = Server.db.Column(Server.db.String(100), nullable=True, default=None)
 
 
-class Variable:
+class Variable(Server.db.Model):
     __tablename__ = 'variables'
     code = Server.db.Column(Server.db.String(30), primary_key=True)
     name = Server.db.Column(Server.db.String(100))
@@ -42,7 +51,7 @@ class Variable:
     unit = Server.db.Column(Server.db.Integer, nullable=True, default=None)
 
 
-class Event:
+class Event(Server.db.Model):
     __tablename__ = 'events'
     id = Server.db.Column(Server.db.Integer, primary_key=True)
     dev_id = Server.db.Column(Server.db.String(100), Server.db.ForeignKey('devices.id'))
@@ -53,14 +62,14 @@ class Event:
     response = Server.db.Column(Server.db.String(100))
 
 
-class EventType:
+class EventType(Server.db.Model):
     __tablename__ = 'event_types'
     id = Server.db.Column(Server.db.Integer, primary_key=True)
     type = Server.db.Column(Server.db.String(100))
 
 
 # TEMPORAL HACK !!!
-class Experiment:
+class Experiment(Server.db.Model):
     __tablename__ = 'experiments'
     id = Server.db.Column(Server.db.Integer, primary_key=True)
     dev_id = Server.db.Column(Server.db.String(100), Server.db.ForeignKey('devices.id'))

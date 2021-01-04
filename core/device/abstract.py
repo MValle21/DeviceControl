@@ -1,21 +1,13 @@
 from abc import abstractmethod
 from threading import Thread
 
-from core.connection.server.FlaskServer import Server
 from core.flow.workflow import Job, WorkflowProvider
 from core.log import Log
 from core.data.command import Command
 from core.utils.AbstractClass import abstractattribute, Interface
 
 
-class Device(metaclass=Interface, Server.db.Model):
-    __tablename__ = 'devices'
-    id = Server.db.Column(Server.db.String(100), primary_key=True)
-    device_class = Server.db.Column(Server.db.String(100))
-    device_type = Server.db.Column(Server.db.String(100))
-    address = Server.db.Column(Server.db.String(100), nullable=True, default=None)
-    values = Server.db.relationship('Value', backref='device')
-
+class Connector(metaclass=Interface):
     def __init__(self, config: dict):
         self.setup = {}
         self.scheduler = WorkflowProvider().scheduler
@@ -29,7 +21,7 @@ class Device(metaclass=Interface, Server.db.Model):
     def validate_attributes(self, required, class_name):
         for att in required:
             if att not in self.__dict__.keys():
-                raise AttributeError("Device {} must contain attribute {}".format(class_name, att))
+                raise AttributeError("Connector {} must contain attribute {}".format(class_name, att))
 
     @abstractattribute
     def interpreter(self) -> dict:
@@ -39,7 +31,7 @@ class Device(metaclass=Interface, Server.db.Model):
         return "{} @ {}".format(self.device_id, self.address)
 
     def __repr__(self):
-        return "Device({}, {})".format(self.device_id, self.address)
+        return "Connector({}, {})".format(self.device_id, self.address)
 
     @abstractmethod
     def disconnect(self) -> None:

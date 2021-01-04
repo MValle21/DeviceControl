@@ -1,6 +1,6 @@
-from threading import Thread
 from typing import Optional
 
+from core.data.model import Experiment, Variable, Device
 from core.utils import time
 from core.data.dao import Dao
 from core.utils.db import enquote
@@ -14,37 +14,46 @@ class DataManager:
         self.ws_client = ws_client
 
         self.variables = self.load_variables()
+        self.experiments = dict()
 
     def load_variables(self):
-        return list(self._get_data([], None, 'variables').keys())
+        return [var.code for var in Variable.query.all()]
 
-    def save_value(self, values):
-        if values[3] not in self.variables:
-            self.save_variable(values[3])
-            self.variables.append(values[3])
-        Dao.insert('values', values)
-
-    def save_event(self, values):
-        Dao.insert('events', values)
-
-    def save_device(self, device):
-        Dao.insert('devices', [device.device_id, device.device_class, device.device_type, device.address], ignore=True)
-
-        # TEMPORAL HACK !!!
-        self.save_experiment(device.device_id)
-
-    def save_experiment(self, device_id):
-        current_time = time.now()
-        Dao.insert('experiments', [device_id, current_time])
-
-    def update_experiment(self, device_id):
-        # update end time in latest experiment with device_id
-        extra = 'ORDER BY id DESC LIMIT 1'
-        Dao.update('experiments', {'end': time.now()}, {'dev_id': device_id}, extra)
+    def save_value(self, value):
+        if value.variable not in self.variables:
+            self.save_variable(value.variable)
+            self.variables.append(value.variable)
+        Dao.insert(value)
 
     def save_variable(self, variable):
-        Dao.insert("variables", [variable, 'measured'])
+        variable = Variable(code=variable, type='measured')
+        Dao.insert(variable)
 
+    def save_event(self, event):
+        Dao.insert(event)
+
+    def save_device(self, connector):
+        device = Device(id=connector.device_id, device_class=connector.device_class,
+                        device_type=connector.device_type, address=connector.address)
+        Dao.insert(device)
+
+        # TEMPORAL HACK !!!
+        self.save_experiment(device.id)
+
+    # TEMPORAL HACK !!!
+    def save_experiment(self, device_id):
+        current_time = time.now()
+        experiment = Experiment(dev_id=device_id, start=current_time)
+        Dao.insert(experiment)
+        self.experiments[device_id] = experiment
+
+    # TEMPORAL HACK !!!
+    def update_experiment(self, device_id):
+        experiment = self.experiments.pop(device_id)
+        experiment.end = time.now()
+        Dao.insert(experiment)
+
+    # TODO
     def _get_data(self, conditions, device_id, table):
         response = Dao.select(table, conditions)
         result = {}

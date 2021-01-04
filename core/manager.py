@@ -27,7 +27,7 @@ class AppManager:
 
     def register_device(self, config: dict) -> Response:
         try:
-            validate_attributes(['device_id', 'device_class', 'device_type', 'address'], config, 'Device')
+            validate_attributes(['device_id', 'device_class', 'device_type', 'address'], config, 'Connector')
             device = self.deviceManager.new_device(config)
             self.dataManager.save_device(device)
         except (IdError, ModuleNotFoundError, AttributeError) as e:
@@ -44,7 +44,7 @@ class AppManager:
 
             return Response(True, None)
         except AttributeError:
-            exc = IdError('Device with given ID: %s was not found' % device_id)
+            exc = IdError('Connector with given ID: %s was not found' % device_id)
             Log.error(exc)
             return Response(False, None, exc)
 

@@ -1,8 +1,8 @@
-from core.device.abstract import Device
+from core.device.abstract import Connector
 from custom.devices.SEDtronic.libs.Connection import Connection
 
 
-class TH_IB2(Device):
+class TH_IB2(Connector):
     def __init__(self, config: dict):
         super(TH_IB2, self).__init__(config)
         self.connection = Connection(self.address, "8080", self.device_id)

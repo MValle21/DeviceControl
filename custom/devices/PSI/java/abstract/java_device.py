@@ -5,12 +5,12 @@ import jpype
 import jpype.imports
 
 from core.data.command import Command
-from core.device.abstract import Device
+from core.device.abstract import Connector
 from core.log import Log
 from custom.devices.PSI.java.utils.jvm_controller import Controller
 
 
-class JavaDevice(Device):
+class JavaDevice(Connector):
     def __init__(self, config, java_config_path):
         super(JavaDevice, self).__init__(config)
         self.controller = Controller()

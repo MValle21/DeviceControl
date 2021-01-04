@@ -1,6 +1,6 @@
 from flask import Flask, request
-from flask_sqlalchemy import SQLAlchemy
 
+from core.data.dao import Dao
 from core.data.manager import DataManager
 from core.data.model import Response
 from core.device.manager import DeviceManager
@@ -16,12 +16,8 @@ class Server:
         self.server = Flask(__name__)
         self.register_endpoints()
 
-        self.server.config['SQLALCHEMY_DATABASE_URI'] = 'mysql://DeviceControl:&Bioarineo1@127.0.0.1/device_control'
-        self.server.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-        self.db = SQLAlchemy(self.server)
-
-    def start(self):
+    def start(self, testing=False):
+        Dao.setup_db(self.server, testing)
         self.server.run(host='0.0.0.0')
 
     def register_endpoints(self):

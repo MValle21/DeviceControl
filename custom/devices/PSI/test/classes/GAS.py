@@ -1,7 +1,7 @@
-from core.device.abstract import Device
+from core.device.abstract import Connector
 
 
-class GAS(Device):
+class GAS(Connector):
     def __init__(self, config):
         super(GAS, self).__init__(config)
 
