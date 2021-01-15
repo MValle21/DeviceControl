@@ -1,8 +1,6 @@
 from threading import Event
 
 from core.data.manager import DataManager
-from core.data.model import Value
-from core.data.model import Event as DBevent
 from core.utils.time import now
 
 
@@ -40,6 +38,7 @@ class Command:
 
     def save_command_to_db(self, event=1):
         if not self._saved:
+            from core.data.model import Event as DBevent
             event = DBevent(dev_id=self.device_id, event_type=event, time=self.time_executed, args=self.args,
                             command=self.command_id, response=self.response)
             DataManager().save_event(event)
@@ -50,10 +49,12 @@ class Command:
             channel = self.response.pop("channel", None)
             note = self.response.pop("outlier", None)
             for variable in self.response:
+                from core.data.model import Value
                 value = Value(time=self.time_executed, value=self.response[variable], dev_id=self.device_id,
                               var_id=variable, channel=channel, note=note)
                 DataManager().save_value(value)
         else:
+            from core.data.model import Event as DBevent
             event = DBevent(dev_id=self.device_id, event_type=2, time=self.time_executed, args=self.args,
                             command=self.command_id, response=self.response)
             DataManager().save_event(event)

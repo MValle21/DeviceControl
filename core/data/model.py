@@ -1,7 +1,7 @@
 from typing import Optional
 from flask import jsonify
 
-from core.connection.server.FlaskServer import Server
+from core.data.dao import Dao
 
 
 class Response:
@@ -24,55 +24,55 @@ class Response:
 
 
 # DB tables
-class Device(Server.db.Model):
+class Device(Dao.db.Model):
     __tablename__ = 'devices'
-    id = Server.db.Column(Server.db.String(100), primary_key=True)
-    device_class = Server.db.Column(Server.db.String(100))
-    device_type = Server.db.Column(Server.db.String(100))
-    address = Server.db.Column(Server.db.String(100), nullable=True, default=None)
+    id = Dao.db.Column(Dao.db.String(100), primary_key=True)
+    device_class = Dao.db.Column(Dao.db.String(100))
+    device_type = Dao.db.Column(Dao.db.String(100))
+    address = Dao.db.Column(Dao.db.String(100), nullable=True, default=None)
 
 
-class Value(Server.db.Model):
+class Value(Dao.db.Model):
     __tablename__ = 'values'
-    id = Server.db.Column(Server.db.Integer, primary_key=True)
-    time = Server.db.Column(Server.db.DateTime)
-    value = Server.db.Column(Server.db.Float)
-    dev_id = Server.db.Column(Server.db.String(100), Server.db.ForeignKey('devices.id'))
-    var_id = Server.db.Column(Server.db.String(100), Server.db.ForeignKey('variables.code'))
-    channel = Server.db.Column(Server.db.Integer, nullable=True, default=None)
-    note = Server.db.Column(Server.db.String(100), nullable=True, default=None)
+    id = Dao.db.Column(Dao.db.Integer, primary_key=True)
+    time = Dao.db.Column(Dao.db.DateTime)
+    value = Dao.db.Column(Dao.db.Float)
+    dev_id = Dao.db.Column(Dao.db.String(100), Dao.db.ForeignKey('devices.id'))
+    var_id = Dao.db.Column(Dao.db.String(100), Dao.db.ForeignKey('variables.code'))
+    channel = Dao.db.Column(Dao.db.Integer, nullable=True, default=None)
+    note = Dao.db.Column(Dao.db.String(100), nullable=True, default=None)
 
 
-class Variable(Server.db.Model):
+class Variable(Dao.db.Model):
     __tablename__ = 'variables'
-    code = Server.db.Column(Server.db.String(30), primary_key=True)
-    name = Server.db.Column(Server.db.String(100))
-    type = Server.db.Column(Server.db.Enum(['measured','computed','adjusted','aggregate']), nullable=True, default=None)
-    unit = Server.db.Column(Server.db.Integer, nullable=True, default=None)
+    code = Dao.db.Column(Dao.db.String(30), primary_key=True)
+    name = Dao.db.Column(Dao.db.String(100))
+    type = Dao.db.Column(Dao.db.Enum(['measured','computed','adjusted','aggregate']), nullable=True, default=None)
+    unit = Dao.db.Column(Dao.db.Integer, nullable=True, default=None)
 
 
-class Event(Server.db.Model):
+class Event(Dao.db.Model):
     __tablename__ = 'events'
-    id = Server.db.Column(Server.db.Integer, primary_key=True)
-    dev_id = Server.db.Column(Server.db.String(100), Server.db.ForeignKey('devices.id'))
-    event_type = Server.db.Column(Server.db.Integer, Server.db.ForeignKey('event_types.id'))
-    time = Server.db.Column(Server.db.DateTime)
-    args = Server.db.Column(Server.db.String(100))
-    command = Server.db.Column(Server.db.String(100))
-    response = Server.db.Column(Server.db.String(100))
+    id = Dao.db.Column(Dao.db.Integer, primary_key=True)
+    dev_id = Dao.db.Column(Dao.db.String(100), Dao.db.ForeignKey('devices.id'))
+    event_type = Dao.db.Column(Dao.db.Integer, Dao.db.ForeignKey('event_types.id'))
+    time = Dao.db.Column(Dao.db.DateTime)
+    args = Dao.db.Column(Dao.db.String(100))
+    command = Dao.db.Column(Dao.db.String(100))
+    response = Dao.db.Column(Dao.db.String(100))
 
 
-class EventType(Server.db.Model):
+class EventType(Dao.db.Model):
     __tablename__ = 'event_types'
-    id = Server.db.Column(Server.db.Integer, primary_key=True)
-    type = Server.db.Column(Server.db.String(100))
+    id = Dao.db.Column(Dao.db.Integer, primary_key=True)
+    type = Dao.db.Column(Dao.db.String(100))
 
 
 # TEMPORAL HACK !!!
-class Experiment(Server.db.Model):
+class Experiment(Dao.db.Model):
     __tablename__ = 'experiments'
-    id = Server.db.Column(Server.db.Integer, primary_key=True)
-    dev_id = Server.db.Column(Server.db.String(100), Server.db.ForeignKey('devices.id'))
-    start = Server.db.Column(Server.db.DateTime)
-    end = Server.db.Column(Server.db.DateTime, nullable=True, default=None)
-    description = Server.db.Column(Server.db.String(100), nullable=True, default=None)
+    id = Dao.db.Column(Dao.db.Integer, primary_key=True)
+    dev_id = Dao.db.Column(Dao.db.String(100), Dao.db.ForeignKey('devices.id'))
+    start = Dao.db.Column(Dao.db.DateTime)
+    end = Dao.db.Column(Dao.db.DateTime, nullable=True, default=None)
+    description = Dao.db.Column(Dao.db.String(100), nullable=True, default=None)

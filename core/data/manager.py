@@ -1,4 +1,3 @@
-from core.data.model import Experiment, Variable, Device, Value, Event
 from core.utils import time
 from core.data.dao import Dao
 from core.utils.singleton import singleton
@@ -15,7 +14,8 @@ class DataManager:
         self.experiments = dict()
 
     def load_variables(self):
-        return [var.code for var in Variable.query.all()]
+        import core.data.model as model
+        return [var.code for var in model.Variable.query.all()]
 
     def save_value(self, value):
         if value.variable not in self.variables:
@@ -24,15 +24,17 @@ class DataManager:
         Dao.insert(value)
 
     def save_variable(self, variable):
-        variable = Variable(code=variable, type='measured')
+        import core.data.model as model
+        variable = model.Variable(code=variable, type='measured')
         Dao.insert(variable)
 
     def save_event(self, event):
         Dao.insert(event)
 
     def save_device(self, connector):
-        device = Device(id=connector.device_id, device_class=connector.device_class,
-                        device_type=connector.device_type, address=connector.address)
+        import core.data.model as model
+        device = model.Device(id=connector.device_id, device_class=connector.device_class,
+                              device_type=connector.device_type, address=connector.address)
         Dao.insert(device)
 
         # TEMPORAL HACK !!!
@@ -40,8 +42,9 @@ class DataManager:
 
     # TEMPORAL HACK !!!
     def save_experiment(self, device_id):
+        import core.data.model as model
         current_time = time.now()
-        experiment = Experiment(dev_id=device_id, start=current_time)
+        experiment = model.Experiment(dev_id=device_id, start=current_time)
         Dao.insert(experiment)
         self.experiments[device_id] = experiment
 
@@ -65,7 +68,8 @@ class DataManager:
         return result
 
     def get_data(self, log_id: int, last_time: str, device_id: str, data_type: str = 'values'):
-        cls = Value if data_type == 'values' else Event
+        import core.data.model as model
+        cls = model.Value if data_type == 'values' else model.Event
 
         if last_time is not None:
             last_time = from_string(last_time)
@@ -78,6 +82,7 @@ class DataManager:
                                      data_type, device_id)
 
     def get_latest_data(self, device_id, data_type: str = 'values'):
-        cls = Value if data_type == 'values' else Event
+        import core.data.model as model
+        cls = model.Value if data_type == 'values' else model.Event
 
         return cls.query.filter_by(dev_id=device_id).order_by(cls.id.desc()).first()

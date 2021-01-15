@@ -1,8 +1,7 @@
 from flask import Flask, request
 
 from core.data.dao import Dao
-from core.data.manager import DataManager
-from core.data.model import Response
+import core.data.manager as DM
 from core.device.manager import DeviceManager
 from core.manager import AppManager
 from core.task.manager import TaskManager
@@ -12,13 +11,13 @@ from core.utils.singleton import singleton
 @singleton
 class Server:
     def __init__(self):
-        self.app_manager = AppManager(TaskManager(), DeviceManager(), DataManager())
+        self.app_manager = AppManager(TaskManager(), DeviceManager(), DM.DataManager())
         self.server = Flask(__name__)
         self.register_endpoints()
 
     def start(self, testing=False):
         Dao.setup_db(self.server, testing)
-        self.server.run(host='0.0.0.0')
+        self.server.run(host='0.0.0.0', debug=testing)
 
     def register_endpoints(self):
 
@@ -41,6 +40,7 @@ class Server:
                 response = self.app_manager.end()
             else:
                 e = TypeError("Invalid type to end: {}".format(_type if _type is not None else "not given"))
+                from core.data.model import Response
                 response = Response(False, None, e)
             return response.to_json()
 

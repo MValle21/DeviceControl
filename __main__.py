@@ -1,10 +1,9 @@
 import sys
 
-
 from core.flow.workflow import Scheduler, WorkflowProvider
 from core.log import Logger
 
-from core.connection import classes
+import core.connection
 from custom.devices.PSI.java.utils.jvm_controller import Controller
 
 logger = Logger()
@@ -15,15 +14,10 @@ controller = Controller()
 
 default = "flask_server"
 
-conModule = None
-conModuleStartArgs = None
-
 if len(sys.argv) > 1:
-    conModule, conModuleStartArgs = classes.get(sys.argv[1])
+    testing = eval(sys.argv[1])
+else:
+    testing = False
 
-if conModule is None:
-    conModule, conModuleStartArgs = classes.get(default)
-
-conModule().start(*conModuleStartArgs)
-
-
+conModule, conModuleStartArgs = core.connection.classes.get(default)
+conModule().start(testing)
